@@ -1,143 +1,143 @@
-`name: Seed starter issues
-`
-`# One-time job: opens the starter issues for new contributors.
-`# Skips any issue whose title already exists. Remove after it has run.
-`on:
-`  push:
-`    paths:
-`      - ".github/workflows/seed-issues.yml"
-`
-`permissions:
-`  issues: write
-`  contents: read
-`
-`jobs:
-`  seed:
-`    runs-on: ubuntu-latest
-`    env:
-`      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-`      GH_REPO: ${{ github.repository }}
-`    steps:
-`      - name: Make sure labels exist
-`        run: |
-`          gh label create "good first issue" --color 7057ff --description "Good for newcomers" --force
-`          gh label create "help wanted" --color 008672 --description "Extra attention is needed" --force
-`          gh label create "enhancement" --color a2eeef --description "New feature or request" --force
-`          gh label create "documentation" --color 0075ca --description "Improvements or additions to documentation" --force
-`          gh label create "tests" --color fbca04 --description "Adds or improves tests" --force
-`
-`      - name: Open issues
-`        run: |
-`          open_issue() {
-`            title="$1"; labels="$2"; body="$3"
-`            if gh issue list --state all --limit 200 --json title -q '.[].title' | grep -Fxq "$title"; then
-`              echo "Already exists: $title"; return
-`            fi
-`            gh issue create --title "$title" --label "$labels" --body "$body"
-`          }
-`
-`          open_issue "Add tests for repository name validation" "good first issue,tests" "$(cat <<'EOF'
-`          \`validate_repo_name()\` in \`app/main.py\` checks that input looks like \`owner/name\`, but it has no tests yet.
-`
-`          **What to do**
-`          Add tests (in \`tests/test_api.py\` or a new \`tests/test_validation.py\`) covering:
-`          - valid input: \`fastapi/fastapi\`, and \` pallets/flask/ \` (spaces and slashes are trimmed)
-`          - invalid input that should raise a 400 error: \`fastapi\`, \`a/b/c\`, \`/x\`, \`../etc\`, \`foo/bar baz\`
-`
-`          **Done when**
-`          - the new tests pass with \`python -m pytest\`
-`          - they make no network calls (test the function directly)
-`          EOF
-`          )"
-`
-`          open_issue "Replace deprecated on_event startup with a lifespan handler" "good first issue" "$(cat <<'EOF'
-`          \`app/main.py\` uses \`@app.on_event("startup")\` to create the database. FastAPI has deprecated this in favour of a \`lifespan\` function.
-`
-`          **What to do**
-`          - Move the \`init_db()\` call into a \`lifespan\` async context manager and pass it to \`FastAPI(lifespan=...)\`
-`          - Remove the old \`@app.on_event\` handler
-`
-`          **Done when**
-`          - the app starts and creates \`devtrack.db\` as before
-`          - \`python -m pytest\` passes with no deprecation warning for \`on_event\`
-`
-`          Docs: https://fastapi.tiangolo.com/advanced/events/
-`          EOF
-`          )"
-`
-`          open_issue "Add tests for snapshot history and CSV export using a temporary database" "good first issue,tests" "$(cat <<'EOF'
-`          \`/api/history/{owner}/{repo}\` and \`/api/export/{owner}/{repo}\` have no tests.
-`
-`          **What to do**
-`          - Point \`DEVTRACK_DB\` at a temporary file (pytest's \`tmp_path\` fixture) so tests don't touch the real database
-`          - Insert a couple of rows with \`save_snapshot()\`
-`          - Check that history returns them, and that export returns \`text/csv\` with a header row plus the data rows
-`
-`          **Done when**
-`          - tests pass with \`python -m pytest\` and make no calls to GitHub
-`          EOF
-`          )"
-`
-`          open_issue "Add screenshots of the dashboard to the README" "good first issue,documentation" "$(cat <<'EOF'
-`          The README describes the dashboard but shows no pictures, so visitors can't see what DevTrack looks like.
-`
-`          **What to do**
-`          - Run the app locally (see Quick start) and look up a public repo such as \`fastapi/fastapi\`
-`          - Take 2 or 3 screenshots (overview, activity feed, snapshot history)
-`          - Save them in \`docs/images/\` and add them near the top of the README
-`
-`          **Done when**
-`          - the screenshots show up on the repository's front page
-`          EOF
-`          )"
-`
-`          open_issue "Improve keyboard and screen-reader accessibility of the dashboard" "good first issue,enhancement" "$(cat <<'EOF'
-`          Make the dashboard in \`app/static/\` easier to use without a mouse and with a screen reader.
-`
-`          **Ideas**
-`          - every input and button has a visible label or \`aria-label\`
-`          - a clear visible focus style for keyboard users
-`          - error and loading messages announced with \`aria-live\`
-`          - text colours meet WCAG AA contrast
-`
-`          **Done when**
-`          - you can look up a repository using only the keyboard
-`          - a quick Lighthouse accessibility check scores 90+
-`          EOF
-`          )"
-`
-`          open_issue "Show a chart of snapshot history (stars, forks, issues over time)" "enhancement,help wanted" "$(cat <<'EOF'
-`          From the roadmap. DevTrack already saves a snapshot each time a repository is inspected (\`/api/history/{owner}/{repo}\`), but only lists them.
-`
-`          **What to do**
-`          - Draw a simple line chart of stars, forks and open issues over time in the dashboard
-`          - Keep the "no build step" rule: plain JavaScript or a small library loaded from a CDN
-`          - Show a friendly message when there are fewer than 2 snapshots
-`
-`          Please comment with your approach before starting.
-`          EOF
-`          )"
-`
-`          open_issue "Add date-range filtering to snapshot history" "enhancement" "$(cat <<'EOF'
-`          From the roadmap. Let users limit history and CSV export to a date range.
-`
-`          **What to do**
-`          - Add optional \`since\` and \`until\` query parameters (ISO dates) to \`/api/history/{owner}/{repo}\` and \`/api/export/{owner}/{repo}\`
-`          - Return a 400 error for invalid dates
-`          - Add tests, and a small date picker in the dashboard if you like
-`
-`          **Done when**
-`          - both endpoints filter correctly and tests pass
-`          EOF
-`          )"
-`
-`          open_issue "Compare two repositories side by side" "enhancement,help wanted" "$(cat <<'EOF'
-`          From the roadmap. Let users enter two repositories and see their key numbers next to each other (stars, forks, open issues, watchers, language, last push).
-`
-`          **What to do**
-`          - Propose the API shape first (a new endpoint, or two calls from the frontend)
-`          - Add a compare view to the dashboard
-`
-`          Please comment with your plan before starting so we can agree on the design.
-`          EOF
-`          )"
+name: Seed starter issues
+
+# One-time job: opens the starter issues for new contributors.
+# Skips any issue whose title already exists. Remove after it has run.
+on:
+  push:
+    paths:
+      - ".github/workflows/seed-issues.yml"
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Make sure labels exist
+        run: |
+          gh label create "good first issue" --color 7057ff --description "Good for newcomers" --force
+          gh label create "help wanted" --color 008672 --description "Extra attention is needed" --force
+          gh label create "enhancement" --color a2eeef --description "New feature or request" --force
+          gh label create "documentation" --color 0075ca --description "Improvements or additions to documentation" --force
+          gh label create "tests" --color fbca04 --description "Adds or improves tests" --force
+
+      - name: Open issues
+        run: |
+          open_issue() {
+            title="$1"; labels="$2"; body="$3"
+            if gh issue list --state all --limit 200 --json title -q '.[].title' | grep -Fxq "$title"; then
+              echo "Already exists: $title"; return
+            fi
+            gh issue create --title "$title" --label "$labels" --body "$body"
+          }
+
+          open_issue "Add tests for repository name validation" "good first issue,tests" "$(cat <<'EOF'
+          `validate_repo_name()` in `app/main.py` checks that input looks like `owner/name`, but it has no tests yet.
+
+          **What to do**
+          Add tests (in `tests/test_api.py` or a new `tests/test_validation.py`) covering:
+          - valid input: `fastapi/fastapi`, and ` pallets/flask/ ` (spaces and slashes are trimmed)
+          - invalid input that should raise a 400 error: `fastapi`, `a/b/c`, `/x`, `../etc`, `foo/bar baz`
+
+          **Done when**
+          - the new tests pass with `python -m pytest`
+          - they make no network calls (test the function directly)
+          EOF
+          )"
+
+          open_issue "Replace deprecated on_event startup with a lifespan handler" "good first issue" "$(cat <<'EOF'
+          `app/main.py` uses `@app.on_event("startup")` to create the database. FastAPI has deprecated this in favour of a `lifespan` function.
+
+          **What to do**
+          - Move the `init_db()` call into a `lifespan` async context manager and pass it to `FastAPI(lifespan=...)`
+          - Remove the old `@app.on_event` handler
+
+          **Done when**
+          - the app starts and creates `devtrack.db` as before
+          - `python -m pytest` passes with no deprecation warning for `on_event`
+
+          Docs: https://fastapi.tiangolo.com/advanced/events/
+          EOF
+          )"
+
+          open_issue "Add tests for snapshot history and CSV export using a temporary database" "good first issue,tests" "$(cat <<'EOF'
+          `/api/history/{owner}/{repo}` and `/api/export/{owner}/{repo}` have no tests.
+
+          **What to do**
+          - Point `DEVTRACK_DB` at a temporary file (pytest's `tmp_path` fixture) so tests don't touch the real database
+          - Insert a couple of rows with `save_snapshot()`
+          - Check that history returns them, and that export returns `text/csv` with a header row plus the data rows
+
+          **Done when**
+          - tests pass with `python -m pytest` and make no calls to GitHub
+          EOF
+          )"
+
+          open_issue "Add screenshots of the dashboard to the README" "good first issue,documentation" "$(cat <<'EOF'
+          The README describes the dashboard but shows no pictures, so visitors can't see what DevTrack looks like.
+
+          **What to do**
+          - Run the app locally (see Quick start) and look up a public repo such as `fastapi/fastapi`
+          - Take 2 or 3 screenshots (overview, activity feed, snapshot history)
+          - Save them in `docs/images/` and add them near the top of the README
+
+          **Done when**
+          - the screenshots show up on the repository's front page
+          EOF
+          )"
+
+          open_issue "Improve keyboard and screen-reader accessibility of the dashboard" "good first issue,enhancement" "$(cat <<'EOF'
+          Make the dashboard in `app/static/` easier to use without a mouse and with a screen reader.
+
+          **Ideas**
+          - every input and button has a visible label or `aria-label`
+          - a clear visible focus style for keyboard users
+          - error and loading messages announced with `aria-live`
+          - text colours meet WCAG AA contrast
+
+          **Done when**
+          - you can look up a repository using only the keyboard
+          - a quick Lighthouse accessibility check scores 90+
+          EOF
+          )"
+
+          open_issue "Show a chart of snapshot history (stars, forks, issues over time)" "enhancement,help wanted" "$(cat <<'EOF'
+          From the roadmap. DevTrack already saves a snapshot each time a repository is inspected (`/api/history/{owner}/{repo}`), but only lists them.
+
+          **What to do**
+          - Draw a simple line chart of stars, forks and open issues over time in the dashboard
+          - Keep the "no build step" rule: plain JavaScript or a small library loaded from a CDN
+          - Show a friendly message when there are fewer than 2 snapshots
+
+          Please comment with your approach before starting.
+          EOF
+          )"
+
+          open_issue "Add date-range filtering to snapshot history" "enhancement" "$(cat <<'EOF'
+          From the roadmap. Let users limit history and CSV export to a date range.
+
+          **What to do**
+          - Add optional `since` and `until` query parameters (ISO dates) to `/api/history/{owner}/{repo}` and `/api/export/{owner}/{repo}`
+          - Return a 400 error for invalid dates
+          - Add tests, and a small date picker in the dashboard if you like
+
+          **Done when**
+          - both endpoints filter correctly and tests pass
+          EOF
+          )"
+
+          open_issue "Compare two repositories side by side" "enhancement,help wanted" "$(cat <<'EOF'
+          From the roadmap. Let users enter two repositories and see their key numbers next to each other (stars, forks, open issues, watchers, language, last push).
+
+          **What to do**
+          - Propose the API shape first (a new endpoint, or two calls from the frontend)
+          - Add a compare view to the dashboard
+
+          Please comment with your plan before starting so we can agree on the design.
+          EOF
+          )"
