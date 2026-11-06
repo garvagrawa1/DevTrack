@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="DevTrack is an open-source dashboard for exploring public GitHub repository activity.">
+  <title>DevTrack — Open-source insights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/"><span class="brand-mark">D</span><span>devtrack<span class="brand-dot">.</span></span></a>
+      <div class="top-right"><span class="status-dot"></span><span>GitHub public data</span><a href="/docs" target="_blank" rel="noreferrer">API docs ↗</a></div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span class="eyebrow-line"></span> OPEN-SOURCE INTELLIGENCE</div>
+        <h1>Understand the work<br><span>behind the stars.</span></h1>
+        <p class="hero-copy">A clean workspace for exploring repository health, contributor activity and project momentum.</p>
+        <form id="search-form" class="search-form">
+          <span class="search-icon">⌕</span>
+          <input id="repo-input" type="text" value="fastapi/fastapi" placeholder="owner/repository" aria-label="GitHub repository" required>
+          <button type="submit">Explore repository <span>↗</span></button>
+        </form>
+        <div class="search-hint">Try <button class="example" data-repo="pallets/flask">pallets/flask</button>, <button class="example" data-repo="numpy/numpy">numpy/numpy</button> or <button class="example" data-repo="facebook/react">facebook/react</button></div>
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+      </section>
+
+      <section id="dashboard" class="dashboard hidden">
+        <div class="repo-heading">
+          <div class="repo-identity"><img id="owner-avatar" alt="" width="48" height="48"><div><div class="repo-kicker">REPOSITORY OVERVIEW</div><h2 id="repo-name">—</h2></div></div>
+          <a id="repo-link" class="external-link" href="#" target="_blank" rel="noreferrer">View on GitHub ↗</a>
+        </div>
+        <p id="repo-description" class="repo-description"></p>
+        <div id="topics" class="topics"></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-label">STARS</div><div id="stars" class="stat-value">—</div><div class="stat-foot">Community interest</div></article>
+          <article class="stat-card"><div class="stat-label">FORKS</div><div id="forks" class="stat-value">—</div><div class="stat-foot">Developer reuse</div></article>
+          <article class="stat-card"><div class="stat-label">OPEN ISSUES</div><div id="open-issues" class="stat-value">—</div><div class="stat-foot">Items to triage</div></article>
+          <article class="stat-card"><div class="stat-label">WATCHERS</div><div id="watchers" class="stat-value">—</div><div class="stat-foot">People following</div></article>
+        </div>
+        <div class="meta-strip" id="meta-strip"></div>
+        <div class="section-head"><div><div class="repo-kicker">RECENT SIGNALS</div><h3>Project activity</h3></div><a id="export-link" class="export-link" href="#">Export snapshot history ↓</a></div>
+        <div class="content-grid">
+          <article class="panel"><div class="panel-head"><h4>Recent commits</h4><span class="panel-count" id="commit-count">0</span></div><div id="commits" class="activity-list"></div></article>
+          <article class="panel"><div class="panel-head"><h4>Top contributors</h4><span class="panel-count" id="contributor-count">0</span></div><div id="contributors" class="people-list"></div></article>
+          <article class="panel"><div class="panel-head"><h4>Pull requests</h4><span class="panel-count" id="pr-count">0</span></div><div id="pulls" class="activity-list"></div></article>
+          <article class="panel"><div class="panel-head"><h4>Issues</h4><span class="panel-count" id="issue-count">0</span></div><div id="issues" class="activity-list"></div></article>
+        </div>
+        <p class="data-note">Data comes from GitHub's public REST API. DevTrack does not own or modify repository data. Snapshot history starts when you first look up a repository.</p>
+      </section>
+    </main>
+    <footer><span>DEVTRACK <span class="brand-dot">●</span> OPEN SOURCE</span><span>Built for curious developers.</span></footer>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
