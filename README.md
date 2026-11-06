@@ -1,6 +1,13 @@
 # DevTrack
 
+[![Tests](https://github.com/garvagrawa1/DevTrack/actions/workflows/tests.yml/badge.svg)](https://github.com/garvagrawa1/DevTrack/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Good first issues](https://img.shields.io/github/issues/garvagrawa1/DevTrack/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/garvagrawa1/DevTrack/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 **A lightweight open-source dashboard for exploring public GitHub repository activity.**
+
+> **New to open source?** DevTrack is small (one Python file and one HTML page), so it is a friendly place for a first pull request. Pick an issue labelled [`good first issue`](https://github.com/garvagrawa1/DevTrack/issues?q=is%3Aopen+label%3A%22good+first+issue%22), comment that you are working on it, and open a PR.
 
 DevTrack turns GitHub's public repository data into a clean dashboard with repository metrics, recent commits, pull requests, issues, contributors, and locally stored metric snapshots.
 
