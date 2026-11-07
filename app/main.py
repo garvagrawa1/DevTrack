@@ -4,10 +4,10 @@ import csv
 import io
 import os
 import sqlite3
-from contextlib import closing
+from contextlib import asynccontextmanager, closing
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, AsyncIterator
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
@@ -18,10 +18,19 @@ from pydantic import BaseModel, Field
 APP_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("DEVTRACK_DB", APP_DIR.parent / "devtrack.db"))
 GITHUB_API = "https://api.github.com"
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    init_db()
+    yield
+
+
 app = FastAPI(
     title="DevTrack API",
     description="A lightweight open-source dashboard for public GitHub repository activity.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 
@@ -47,11 +56,6 @@ def init_db() -> None:
         """)
         conn.execute("CREATE INDEX IF NOT EXISTS idx_snapshots_repo ON snapshots(full_name, captured_at)")
         conn.commit()
-
-
-@app.on_event("startup")
-def startup() -> None:
-    init_db()
 
 
 class RepoRequest(BaseModel):
